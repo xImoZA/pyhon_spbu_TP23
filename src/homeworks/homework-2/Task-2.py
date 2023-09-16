@@ -21,9 +21,9 @@ def write_word(file, dict_words):
 
 
 if __name__ == '__main__':
-    scr_file = input('To analyze the text, enter the name of the text file: ')
-    dst_file = input('Enter the name of the file to save the result: ')
+    name_scr_file = input('To analyze the text, enter the name of the text file: ')
+    name_dst_file = input('Enter the name of the file to save the result: ')
 
-    write_word(dst_file, count_word(scr_file))
+    write_word(name_dst_file, count_word(name_scr_file))
 
-    print(f'The result is written to a file {dst_file}')
+    print(f'The result is written to a file {name_dst_file}')
