@@ -13,7 +13,7 @@ def count_word(file):
 
 
 def write_word(file, dict_words):
-    list_with_word = [word_count for word_count in dict_words.items()]
+    list_with_word = dict_words.items()
     with open(file, 'w') as dst_file:
         word_writer = csv.writer(dst_file)
         word_writer.writerow(['Word', 'Count'])
