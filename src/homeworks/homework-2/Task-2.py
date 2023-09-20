@@ -13,7 +13,7 @@ def count_word(file):
 
 
 def write_word(file, dict_words):
-    list_with_word = [[key, dict_words[key]] for key in dict_words.keys()]
+    list_with_word = [word_count for word_count in dict_words.items()]
     with open(file, 'w') as dst_file:
         word_writer = csv.writer(dst_file)
         word_writer.writerow(['Word', 'Count'])
@@ -21,9 +21,9 @@ def write_word(file, dict_words):
 
 
 if __name__ == '__main__':
-    name_scr_file = input('To analyze the text, enter the name of the text file: ')
+    name_src_file = input('To analyze the text, enter the name of the text file: ')
     name_dst_file = input('Enter the name of the file to save the result: ')
 
-    write_word(name_dst_file, count_word(name_scr_file))
+    write_word(name_dst_file, count_word(name_src_file))
 
     print(f'The result is written to a file {name_dst_file}')
