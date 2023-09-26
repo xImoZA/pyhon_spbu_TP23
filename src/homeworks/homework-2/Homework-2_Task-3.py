@@ -1,3 +1,6 @@
+import os
+
+
 def delete_fragment(start, end, dna):
     start_index = dna.find(start)
     end_index = dna.find(end, start_index + len(start)) + len(end)
@@ -12,9 +15,7 @@ def insert_fragment(start, fragment, dna):
 
 
 def replace_fragment(template, fragment, dna):
-    start_index = dna.find(template)
-
-    return dna[:start_index] + fragment + dna[start_index + len(template):]
+    return dna.replace(template, fragment, 1)
 
 
 def read_file(read_name, output_name):
@@ -40,7 +41,16 @@ def read_file(read_name, output_name):
 
 if __name__ == '__main__':
     name_scr_file = input('Enter the name of the file to read: ')
+    while os.path.exists(name_scr_file) is False:
+        name_scr_file = input('There is no such file in the directory. Try again: ')
+
     name_dst_file = input('Enter the name of the file to output the result: ')
+    if os.path.exists(name_dst_file) is False:
+        check_name = input('There is no such file in the directory. Do you want to create a new file? (Y/N): ')
+
+        if check_name == 'N':
+            while os.path.exists(name_dst_file) is False:
+                name_dst_file = input('Enter the name of the file to output the result: ')
 
     read_file(name_scr_file, name_dst_file)
     print(f'The results of the experiments are derived in {name_dst_file}')
