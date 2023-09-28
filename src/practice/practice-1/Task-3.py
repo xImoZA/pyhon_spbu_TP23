@@ -10,6 +10,8 @@ def all_prime_numbers(x):
     return output
 
 
-if __name__ == '__main__':
-    number_input = int(input('Чтобы узнать все простые числа до некоторого n, введите n: '))
+if __name__ == "__main__":
+    number_input = int(
+        input("Чтобы узнать все простые числа до некоторого n, введите n: ")
+    )
     print(f'Все числа: {" ".join(map(str, all_prime_numbers(number_input)))}')
