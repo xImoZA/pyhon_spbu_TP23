@@ -6,10 +6,10 @@ def division(a, b):
     return whole_private
 
 
-if __name__ == '__main__':
-    print('Для вычисления частного')
-    print('Введите а:')
+if __name__ == "__main__":
+    print("Для вычисления частного")
+    print("Введите а:")
     divisible = int(input())
-    print('Введите b:')
+    print("Введите b:")
     divider = int(input())
-    print(f'Частное от деления:{division(divisible, divider)}')
+    print(f"Частное от деления:{division(divisible, divider)}")
