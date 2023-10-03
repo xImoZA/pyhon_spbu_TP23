@@ -20,7 +20,7 @@ def replace_fragment(template, fragment, dna):
 
 def read_file(read_name, output_name):
     list_dna = []
-    with open(read_name, 'r') as src_file:
+    with open(read_name, "r") as src_file:
         m = int(src_file.readline())
         genotype = src_file.readline()
 
@@ -28,32 +28,36 @@ def read_file(read_name, output_name):
         for experiment in range(1, n + 1):
             operation, parameter_1, parameter_2 = src_file.readline().split()
 
-            if operation == 'DELETE':
+            if operation == "DELETE":
                 genotype = delete_fragment(parameter_1, parameter_2, genotype)
 
-            elif operation == 'INSERT':
+            elif operation == "INSERT":
                 genotype = insert_fragment(parameter_1, parameter_2, genotype)
 
-            elif operation == 'REPLACE':
+            elif operation == "REPLACE":
                 genotype = replace_fragment(parameter_1, parameter_2, genotype)
 
-            list_dna += [f'After {experiment} experiment: {genotype}']
-    with open(output_name, 'w') as dst_file:
+            list_dna += [f"After {experiment} experiment: {genotype}"]
+    with open(output_name, "w") as dst_file:
         dst_file.writelines(list_dna)
 
 
-if __name__ == '__main__':
-    name_scr_file = input('Enter the name of the file to read: ')
+if __name__ == "__main__":
+    name_scr_file = input("Enter the name of the file to read: ")
     while not os.path.exists(name_scr_file):
-        name_scr_file = input('There is no such file in the directory. Try again: ')
+        name_scr_file = input("There is no such file in the directory. Try again: ")
 
-    name_dst_file = input('Enter the name of the file to output the result: ')
+    name_dst_file = input("Enter the name of the file to output the result: ")
     if not os.path.exists(name_dst_file):
-        check_name = input('There is no such file in the directory. Do you want to create a new file? (Y/N): ')
+        check_name = input(
+            "There is no such file in the directory. Do you want to create a new file? (Y/N): "
+        )
 
-        if check_name == 'N':
+        if check_name == "N":
             while not os.path.exists(name_dst_file):
-                name_dst_file = input('Enter the name of the file to output the result: ')
+                name_dst_file = input(
+                    "Enter the name of the file to output the result: "
+                )
 
     read_file(name_scr_file, name_dst_file)
-    print(f'The results of the experiments are derived in {name_dst_file}')
+    print(f"The results of the experiments are derived in {name_dst_file}")
