@@ -1,7 +1,8 @@
 from collections import namedtuple
 from dataclasses import dataclass
 
-StackElement = namedtuple("StackElement", ['value', 'next'])
+StackElement = namedtuple("StackElement", ["value", "next"])
+
 
 @dataclass
 class Stack:
@@ -53,5 +54,5 @@ def main():
     print(size(test_stack))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
