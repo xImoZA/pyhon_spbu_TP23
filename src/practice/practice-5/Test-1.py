@@ -29,6 +29,7 @@ def size(stack):
 def top(stack):
     if empty(stack):
         return stack.head.value
+    return False
 
 
 def push(stack, value):
@@ -40,6 +41,8 @@ def pop(stack):
     if empty(stack):
         stack.head = stack.head.next
         stack.size -= 1
+        return True
+    return False
 
 
 def main():
