@@ -16,9 +16,7 @@ def create_new_stack():
 
 
 def empty(stack):
-    if stack.size == 0:
-        return False
-    return True
+    return stack.size == 0
 
 
 def size(stack):
