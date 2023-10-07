@@ -11,7 +11,7 @@ class Stack:
 
 
 def create_new_stack():
-    stack = Stack(0, (None, None))
+    stack = Stack(0, None)
     return stack
 
 
@@ -20,14 +20,14 @@ def empty(stack):
 
 
 def size(stack):
-    if empty(stack):
+    if not empty(stack):
         return stack.size
 
 
 def top(stack):
-    if empty(stack):
+    if not empty(stack):
         return stack.head.value
-    return False
+    return None
 
 
 def push(stack, value):
@@ -36,11 +36,11 @@ def push(stack, value):
 
 
 def pop(stack):
-    if empty(stack):
+    if not empty(stack):
         stack.head = stack.head.next
         stack.size -= 1
         return True
-    return False
+    return None
 
 
 def main():
@@ -48,11 +48,11 @@ def main():
     pop(test_stack)
     for i in range(10):
         push(test_stack, i)
-    print(size(test_stack))
-    print(top(test_stack))
+    print(f"Size stack: {size(test_stack)}")
+    print(f"Top element: {top(test_stack)}")
     pop(test_stack)
-    print(top(test_stack))
-    print(size(test_stack))
+    print(f"New top element: {top(test_stack)}")
+    print(f"New size stack: {size(test_stack)}")
 
 
 if __name__ == "__main__":
