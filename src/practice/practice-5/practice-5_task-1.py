@@ -20,8 +20,7 @@ def empty(stack):
 
 
 def size(stack):
-    if not empty(stack):
-        return stack.size
+    return stack.size
 
 
 def top(stack):
@@ -46,6 +45,7 @@ def pop(stack):
 def main():
     test_stack = create_new_stack()
     pop(test_stack)
+    print(size(test_stack))
     for i in range(10):
         push(test_stack, i)
     print(f"Size stack: {size(test_stack)}")
