@@ -3,7 +3,7 @@ def curry_explicit(function, arity):
         exit("Uncorrected arity")
 
     elif arity == 0:
-        return function()
+        return function
 
     def get_args(args):
         if len(args) > arity:
@@ -27,7 +27,7 @@ def uncurry_explicit(function, arity):
         exit("Uncorrected arity")
 
     elif arity == 0:
-        return function()
+        return function
 
     def get_args(*args):
         if len(args) != arity:
