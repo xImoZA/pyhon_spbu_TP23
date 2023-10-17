@@ -4,15 +4,10 @@ def curry_explicit(function, arity):
 
     def get_args(args):
         if len(args) == arity:
-            try:
-                if arity == 0:
-                    return function
+            if arity == 0:
+                return function
 
-                return function(*args)
-            except TypeError:
-                raise ValueError(
-                    "Uncorrected input: The number of arguments does not correspond to arity"
-                )
+            return function(*args)
 
         def get_one_arg(*new_arg):
             return get_args([*args, *new_arg])
