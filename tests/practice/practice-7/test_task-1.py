@@ -100,6 +100,6 @@ def test_main(monkeypatch):
     main()
     output = fake_output.getvalue()
     assert (
-        output == "Solution of the equation: -2.5 3\n"
-        or output == "Solution of the equation: 3 -2.5\n"
+        output == "Solution of the equation: -2.5 3.0\n"
+        or output == "Solution of the equation: 3.0 -2.5\n"
     )
