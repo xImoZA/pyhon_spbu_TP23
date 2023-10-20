@@ -31,8 +31,8 @@ def test_get_corrected_input(user_input, expected):
 @pytest.mark.parametrize(
     "a,b,c,expected",
     [
-        (3, 0, 0, 0),
-        (-3, 0, 0, 0),
+        (3, 0, 0, [0]),
+        (-3, 0, 0, [0]),
         (2, 0, -18, (-3, 3)),
         (-2, 0, 18, (-3, 3)),
         (2, 0, 18, ValueError),
@@ -43,7 +43,7 @@ def test_get_corrected_input(user_input, expected):
         (-3, -6, 0, (0, -2)),
         (1, 2, 3, ValueError),
         (2, -1, -15, (-2.5, 3)),
-        (1, 4, 4, -2),
+        (1, 4, 4, [-2]),
     ],
 )
 def test_solution_quadratic_equation(a, b, c, expected):
@@ -61,7 +61,7 @@ def test_solution_quadratic_equation(a, b, c, expected):
             assert len(actual) == len(expected) and actual == expected
 
 
-@pytest.mark.parametrize("b,c,expected", [(2, 1, -0.5), (-2, 1, 0.5), (2, -6, 3.0)])
+@pytest.mark.parametrize("b,c,expected", [(2, 1, [-0.5]), (-2, 1, [0.5]), (2, -6, [3.0])])
 def test_solving_linear_equation(b, c, expected):
     actual = solving_linear_equation(b, c)
     assert actual == expected
@@ -72,10 +72,10 @@ def test_solving_linear_equation(b, c, expected):
     [
         (0, 0, 0, ["X can be anything"]),
         (0, 0, 5, ValueError),
-        (0, 2, 1, -0.5),
+        (0, 2, 1, [-0.5]),
         (2, 0, 18, ValueError),
         (2, -1, -15, (-2.5, 3)),
-        (1, 4, 4, -2),
+        (1, 4, 4, [-2]),
     ],
 )
 def test_solving_equation(a, b, c, expected):
