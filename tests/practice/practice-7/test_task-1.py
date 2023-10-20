@@ -61,7 +61,7 @@ def test_solution_quadratic_equation(a, b, c, expected):
             assert len(actual) == len(expected) and actual == expected
 
 
-@pytest.mark.parametrize("b,c,expected", [(2, 1, -0.5), (-2, 1, 0.5), (2, -6, -3.0)])
+@pytest.mark.parametrize("b,c,expected", [(2, 1, -0.5), (-2, 1, 0.5), (2, -6, 3.0)])
 def test_solving_linear_equation(b, c, expected):
     actual = solving_linear_equation(b, c)
     assert actual == expected

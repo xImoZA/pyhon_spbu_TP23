@@ -10,7 +10,7 @@ def main():
 
 
 def get_corrected_input(user_input):
-    if len(user_input) != 3 and not is_float_numbers(user_input):
+    if len(user_input) != 3 or not is_float_numbers(user_input):
         return False
     return True
 
@@ -46,7 +46,7 @@ def solution_quadratic_equation(a, b, c):
         raise ValueError("The discriminant is less than zero")
 
     elif discriminant == 0:
-        return -b / (2 * a)
+        return [-b / (2 * a)]
 
     res = [(-b + discriminant**0.5) / (2 * a), (-b - discriminant**0.5) / (2 * a)]
     res.sort()
@@ -55,7 +55,7 @@ def solution_quadratic_equation(a, b, c):
 
 
 def solving_linear_equation(b, c):
-    return -c / b
+    return [-c / b]
 
 
 if __name__ == "__main__":
