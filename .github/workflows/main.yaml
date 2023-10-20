@@ -15,3 +15,7 @@ jobs:
         run: pip install black
       - name: "black"
         run: black . --check --diff --color
+      - name: "Installation"
+        run: pip install pytest
+      - name: "pytest"
+        run: python3 -m pytest tests
