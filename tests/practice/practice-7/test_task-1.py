@@ -128,7 +128,7 @@ def test_errors_solve_equation(a, b, c):
 
 @pytest.mark.parametrize(
     "numbers,expected",
-    [(-0.0, (0,)), (-2.5, (-2.5,)), (2.0, (2,))],
+    [((-0.0,), (0,)), ((-2.5,), (-2.5,)), ((2.0,), (2,)), ((-1.0, 2.5), (-1, 2.5))],
 )
 def test_get_beautiful_numbers(numbers, expected):
     actual = get_beautiful_numbers(numbers)
