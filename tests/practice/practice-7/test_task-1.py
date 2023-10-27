@@ -1,5 +1,6 @@
 from io import StringIO
 from src.practice.practice_7.practice_7_task_1 import *
+from collections import Counter
 import pytest
 
 
@@ -24,7 +25,11 @@ def test_is_float_numbers(numbers, expected):
 @pytest.mark.parametrize(
     "user_input,expected",
     [
-        (["1", "2", "3"], None),
+        (["1", "2", "3"], True),
+        (["-1", "-2", "-3"], True),
+        (["1.1", "2.2", "3.3"], True),
+        (["-1.1", "-2.2", "-3.3"], True),
+        (["-1", "2.2", "-3.3"], True),
     ],
 )
 def test_is_input_correct(user_input, expected):
@@ -42,7 +47,7 @@ def test_is_input_correct(user_input, expected):
         (["w", "2", "m", "3"]),
     ],
 )
-def test_is_input_correct(user_input):
+def test_errors_is_input_correct(user_input):
     with pytest.raises(ValueError):
         is_input_correct(user_input)
 
@@ -65,10 +70,7 @@ def test_is_input_correct(user_input):
 def test_solution_quadratic_equation(a, b, c, expected):
     actual = solution_quadratic_equation(a, b, c)
     if len(actual) == 2:
-        assert len(actual) == len(expected) and (
-            (actual[0] == expected[0] and actual[1] == expected[1])
-            or (actual[0] == expected[1] and actual[1] == expected[0])
-        )
+        assert len(actual) == len(expected) and (Counter(expected) == Counter(actual))
     else:
         assert len(actual) == len(expected) and actual == expected
 
@@ -105,10 +107,7 @@ def test_solving_linear_equation(b, c, expected):
 def test_solve_equation(a, b, c, expected):
     actual = solve_equation(a, b, c)
     if len(actual) == 2:
-        assert len(actual) == len(expected) and (
-            (actual[0] == expected[0] and actual[1] == expected[1])
-            or (actual[0] == expected[1] and actual[1] == expected[0])
-        )
+        assert len(actual) == len(expected) and (Counter(expected) == Counter(actual))
     else:
         assert len(actual) == len(expected) and actual == expected
 
@@ -141,7 +140,4 @@ def test_main(monkeypatch):
     monkeypatch.setattr("sys.stdout", fake_output)
     main()
     output = fake_output.getvalue()
-    assert (
-        output == "Solution of the equation: -2.5 3\n"
-        or output == "Solution of the equation: 3 -2.5\n"
-    )
+    assert output == "Solution of the equation: 3 -2.5\n"

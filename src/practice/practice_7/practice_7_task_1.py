@@ -1,22 +1,26 @@
 def main():
     input_coefficients = input("Enter the coefficients of the equation: ").split()
-    is_input_correct(input_coefficients)
+
+    try:
+        is_input_correct(input_coefficients)
+    except ValueError as error:
+        print(f"Error: {error}")
+
     coefficients = list(map(float, input_coefficients))
 
-    solve_of_equation = get_beautiful_numbers(
-        solve_equation(coefficients[0], coefficients[1], coefficients[2])
-    )
-    print(f"Solution of the equation: {' '.join(map(str, solve_of_equation))}")
+    try:
+        solve_of_equation = get_beautiful_numbers(
+            solve_equation(coefficients[0], coefficients[1], coefficients[2])
+        )
+        print(f"Solution of the equation: {' '.join(map(str, solve_of_equation))}")
+    except ValueError as error:
+        print(f"Error: {error}")
 
 
 def get_beautiful_numbers(answer):
-    beautiful_numbers = []
-    for number in answer:
-        if int(number) == number:
-            beautiful_numbers.append(int(number))
-
-        else:
-            beautiful_numbers.append(number)
+    beautiful_numbers = [
+        int(number) if int(number) == number else number for number in answer
+    ]
 
     return tuple(beautiful_numbers)
 
@@ -28,6 +32,8 @@ def is_input_correct(user_input):
     for i in range(len(user_input)):
         if not is_float_number(user_input[i]):
             raise ValueError(f"Invalid argument №{i + 1}")
+
+    return True
 
 
 def is_float_number(number):
