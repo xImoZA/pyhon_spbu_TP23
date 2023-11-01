@@ -19,7 +19,7 @@ def get_binary(number):
 def get_exponential_normalized(bin_integer, bin_fractional, sign):
     if bin_integer:
         order = len(bin_integer)
-        return f"0.{''.join(map(str, bin_integer))}{''.join(map(str, bin_fractional))} * 2^{order}"
+        return f"{sign}0.{''.join(map(str, bin_integer))}{''.join(map(str, bin_fractional))}*2^{order}"
 
     order = 0
     for i in bin_fractional:
@@ -28,7 +28,7 @@ def get_exponential_normalized(bin_integer, bin_fractional, sign):
         else:
             break
 
-    return f"{sign}0.{''.join(map(str, bin_fractional[-order:]))} * 2^({order})"
+    return f"{sign}0.{''.join(map(str, bin_fractional[-order:]))}*2^({order})"
 
 
 def get_number_in_format(integer, frac, sign, exponent_bit, mantissa_bit):
