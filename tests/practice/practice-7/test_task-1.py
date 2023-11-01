@@ -25,15 +25,15 @@ def test_is_float_numbers(numbers, expected):
 @pytest.mark.parametrize(
     "user_input,expected",
     [
-        (["1", "2", "3"], True),
-        (["-1", "-2", "-3"], True),
-        (["1.1", "2.2", "3.3"], True),
-        (["-1.1", "-2.2", "-3.3"], True),
-        (["-1", "2.2", "-3.3"], True),
+        (["1", "2", "3"], [1.0, 2.0, 3.0]),
+        (["-1", "-2", "-3"], [-1.0, -2.0, -3.0]),
+        (["1.1", "2.2", "3.3"], [1.1, 2.2, 3.3]),
+        (["-1.1", "-2.2", "-3.3"], [-1.1, -2.2, -3.3]),
+        (["-1", "2.2", "-3.3"], [-1.0, 2.2, -3.3]),
     ],
 )
-def test_is_input_correct(user_input, expected):
-    actual = is_input_correct(user_input)
+def test_parse_input(user_input, expected):
+    actual = parse_input(user_input)
     assert actual == expected
 
 
@@ -47,9 +47,9 @@ def test_is_input_correct(user_input, expected):
         (["w", "2", "m", "3"]),
     ],
 )
-def test_errors_is_input_correct(user_input):
+def test_errors_parse_input(user_input):
     with pytest.raises(ValueError):
-        is_input_correct(user_input)
+        parse_input(user_input)
 
 
 @pytest.mark.parametrize(
@@ -83,8 +83,8 @@ def test_solution_quadratic_equation(a, b, c, expected):
         (1, 2, 3),
     ],
 )
-def test_errors_solution_quadratic_equation(a, b, c):
-    with pytest.raises(ValueError):
+def test_value_errors_solution_quadratic_equation(a, b, c):
+    with pytest.raises(ArithmeticError):
         solution_quadratic_equation(a, b, c)
 
 
@@ -117,11 +117,24 @@ def test_solve_equation(a, b, c, expected):
     [
         (0, 0, 0),
         (0, 0, 5),
-        (2, 0, 18),
+        (0, 0, 18),
     ],
 )
-def test_errors_solve_equation(a, b, c):
+def test_value_error_solve_equation(a, b, c):
     with pytest.raises(ValueError):
+        solve_equation(a, b, c)
+
+
+@pytest.mark.parametrize(
+    "a,b,c",
+    [
+        (2, 0, 18),
+        (-2, 0, -18),
+        (1, 2, 3),
+    ],
+)
+def test_arithmetic_error_solve_equation(a, b, c):
+    with pytest.raises(ArithmeticError):
         solve_equation(a, b, c)
 
 
@@ -134,10 +147,20 @@ def test_get_beautiful_numbers(numbers, expected):
     assert actual == expected
 
 
-def test_main(monkeypatch):
-    monkeypatch.setattr("builtins.input", lambda _: "2 -1 -15")
+@pytest.mark.parametrize(
+    "mok_input,mok_output",
+    [("2 -1 -15", "Solution of the equation: 3 -2.5\n"),
+     ("0 2 1", "Solution of the equation: -0.5\n"),
+     ("1 2 3 4", "Error: More than 3 arguments have been entered\n"),
+     ("1 w 2", "Error: Invalid argument №2\n"),
+     ("0 0 0", "X can be anything\n"),
+     ("0 0 3", "Error: The equation has no solutions\n"),
+     ("2 0 18", "Error: The discriminant is less than zero\n")],
+)
+def test_main(monkeypatch, mok_input, mok_output):
+    monkeypatch.setattr("builtins.input", lambda _: mok_input)
     fake_output = StringIO()
     monkeypatch.setattr("sys.stdout", fake_output)
     main()
     output = fake_output.getvalue()
-    assert output == "Solution of the equation: 3 -2.5\n"
+    assert output == mok_output
