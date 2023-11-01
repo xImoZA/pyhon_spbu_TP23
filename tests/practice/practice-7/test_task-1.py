@@ -149,13 +149,15 @@ def test_get_beautiful_numbers(numbers, expected):
 
 @pytest.mark.parametrize(
     "mok_input,mok_output",
-    [("2 -1 -15", "Solution of the equation: 3 -2.5\n"),
-     ("0 2 1", "Solution of the equation: -0.5\n"),
-     ("1 2 3 4", "Error: More than 3 arguments have been entered\n"),
-     ("1 w 2", "Error: Invalid argument №2\n"),
-     ("0 0 0", "X can be anything\n"),
-     ("0 0 3", "Error: The equation has no solutions\n"),
-     ("2 0 18", "Error: The discriminant is less than zero\n")],
+    [
+        ("2 -1 -15", "Solution of the equation: 3 -2.5\n"),
+        ("0 2 1", "Solution of the equation: -0.5\n"),
+        ("1 2 3 4", "Error: More than 3 arguments have been entered\n"),
+        ("1 w 2", "Error: Invalid argument №2\n"),
+        ("0 0 0", "X can be anything\n"),
+        ("0 0 3", "Error: The equation has no solutions\n"),
+        ("2 0 18", "Error: The discriminant is less than zero\n"),
+    ],
 )
 def test_main(monkeypatch, mok_input, mok_output):
     monkeypatch.setattr("builtins.input", lambda _: mok_input)
