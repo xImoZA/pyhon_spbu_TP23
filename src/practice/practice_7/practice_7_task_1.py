@@ -3,27 +3,22 @@ def main():
 
     try:
         coefficients = parse_input(input_coefficients)
+        solve_of_equation = get_beautiful_numbers(
+            solve_equation(coefficients[0], coefficients[1], coefficients[2])
+        )
+        print(f"Solution of the equation: {' '.join(map(str, solve_of_equation))}")
 
-        try:
-            solve_of_equation = get_beautiful_numbers(
-                solve_equation(coefficients[0], coefficients[1], coefficients[2])
-            )
-            print(f"Solution of the equation: {' '.join(map(str, solve_of_equation))}")
-
-        except (ValueError, ArithmeticError) as error:
-            print(error)
-
-    except ValueError as error:
-        print(f"Error: {error}")
+    except (ValueError, ArithmeticError) as error:
+        print(error)
 
 
 def parse_input(user_input):
     if len(user_input) != 3:
-        raise ValueError("More than 3 arguments have been entered")
+        raise ValueError("Error: More than 3 arguments have been entered")
 
     for i in range(len(user_input)):
         if not is_float_number(user_input[i]):
-            raise ValueError(f"Invalid argument №{i + 1}")
+            raise ValueError(f"Error: Invalid argument №{i + 1}")
 
     return list(map(float, user_input))
 
