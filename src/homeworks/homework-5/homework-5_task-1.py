@@ -29,8 +29,7 @@ def get_same_bit_depth(num_1, num_2):
         max_num = max(num_1, num_2, key=len)[:]
         min_num = min(num_1, num_2, key=len)[:]
 
-        while len(min_num) != len(max_num):
-            min_num.insert(1, 0 + min_num[0])
+        min_num = [min_num[0]] * (len(max_num) - len(min_num) + 1) + min_num[1:]
 
         return max_num, min_num
     return num_1, num_2
@@ -39,23 +38,24 @@ def get_same_bit_depth(num_1, num_2):
 def addition_binary(number_1, number_2):
     num_1, num_2 = get_same_bit_depth(number_1, number_2)
 
-    bin_sum = []
+    num_1.reverse()
+    num_2.reverse()
 
-    for i in range(len(num_1)):
-        bin_sum.append(num_1[i] + num_2[i])
+    bin_sum = [0] * len(num_1)
 
-    for i in range(len(bin_sum) - 1, -1, -1):
+    for i in range(len(bin_sum)):
+        bin_sum[i] += num_1[i] + num_2[i]
+
         if bin_sum[i] > 1:
-            if i == 0:
-                bin_sum[i] = bin_sum[i] % 2
-            else:
-                bin_sum[i] = bin_sum[i] % 2
-                bin_sum[i - 1] += 1
+            if i != len(num_1) - 1:
+                bin_sum[i + 1] += 1
 
-    if num_1[0] == num_2[0] and num_1[0] != bin_sum[0]:
-        bin_sum.insert(0, number_1[0])
+            bin_sum[i] = bin_sum[i] % 2
 
-    return bin_sum
+    if num_1[-1] == num_2[-1] and num_1[-1] != bin_sum[-1]:
+        bin_sum.append(num_1[-1])
+
+    return list(reversed(bin_sum))
 
 
 def get_decimal(number):
