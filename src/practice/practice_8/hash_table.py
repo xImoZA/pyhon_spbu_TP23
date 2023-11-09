@@ -1,8 +1,5 @@
 from dataclasses import dataclass
 from typing import TypeVar, Generic, Optional
-import sys
-
-sys.setrecursionlimit(10**6)
 
 V = TypeVar("V")
 K = TypeVar("K")
