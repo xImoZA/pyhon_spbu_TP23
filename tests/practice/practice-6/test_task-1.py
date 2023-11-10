@@ -1,5 +1,5 @@
 from io import StringIO
-from src.practice.practice_7.practice_7_task_1 import *
+from src.practice.practice_6.task_1 import *
 from collections import Counter
 import pytest
 

@@ -1,4 +1,4 @@
-from src.practice.practice_9.BST import *
+from src.practice.practice_7.BST import *
 import pytest
 
 
