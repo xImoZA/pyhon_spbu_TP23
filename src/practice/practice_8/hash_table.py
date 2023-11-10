@@ -1,9 +1,10 @@
 from dataclasses import dataclass
-from typing import TypeVar, Generic, Optional
-
+from typing import TypeVar, Generic, Optional, Callable
 
 V = TypeVar("V")
 K = TypeVar("K")
+
+DEFAULT_HASH_TABLE_SIZE = 8
 
 
 @dataclass
@@ -17,11 +18,13 @@ class HashNode(Generic[K, V]):
 class HashTable(Generic[K, V]):
     capacity: int
     size: int
-    table: list[Optional[HashNode]]
+    buckets: list[Optional[HashNode]]
+    not_empty_buckets: list[int]
+    hash_fn: Callable[[K], int] = hash
 
 
 def create_hash_table() -> HashTable:
-    return HashTable(128, 0, [None] * 128)
+    return HashTable(DEFAULT_HASH_TABLE_SIZE, 0, [None] * DEFAULT_HASH_TABLE_SIZE, [])
 
 
 def delete_hash_table(hash_table: HashTable) -> None:
@@ -31,12 +34,15 @@ def delete_hash_table(hash_table: HashTable) -> None:
 
 
 def put(hash_table: HashTable, key: K, value: V) -> None:
-    index = hash(key) % hash_table.capacity
+    index = hash_table.hash_fn(key) % hash_table.capacity
 
     if not has_key(hash_table, key):
         hash_table.size += 1
 
-    def put_in_node(cur_node: HashNode) -> HashNode:
+    if hash_table.buckets[index] is None:
+        hash_table.not_empty_buckets.append(index)
+
+    def put_in_node(cur_node: HashNode, cur_key: K, cur_value: V) -> HashNode:
         if cur_node is None:
             return HashNode(key, value, None)
 
@@ -44,30 +50,29 @@ def put(hash_table: HashTable, key: K, value: V) -> None:
             cur_node.value = value
             return cur_node
 
-        cur_node.next = put_in_node(cur_node.next)
+        cur_node.next = put_in_node(cur_node.next, cur_key, cur_value)
         return cur_node
 
-    hash_table.table[index] = put_in_node(hash_table.table[index])
+    hash_table.buckets[index] = put_in_node(hash_table.buckets[index], key, value)
 
     if hash_table.size / hash_table.capacity >= 0.8:
-        hash_table.capacity *= 2
-
         new_list = [None] * (hash_table.capacity * 2)
         list_items = items(hash_table)
 
         for pair in list_items:
-            index = hash(pair[0]) % (hash_table.capacity * 2)
-            new_list[index] = put_in_node(new_list[index])
+            index = hash_table.hash_fn(pair[0]) % (hash_table.capacity * 2)
+            new_list[index] = put_in_node(new_list[index], pair[0], pair[1])
             remove(hash_table, pair[0])
 
-        hash_table.table = new_list
+        hash_table.buckets = new_list
+        hash_table.capacity *= 2
 
 
 def remove(hash_table: HashTable, key: K) -> V:
     if not has_key(hash_table, key):
         raise ValueError("This key does not exist")
 
-    index = hash(key) % hash_table.capacity
+    index = hash_table.hash_fn(key) % hash_table.capacity
 
     def remove_in_node(cur_node: HashNode) -> (HashNode, V):
         if cur_node.key == key:
@@ -76,8 +81,12 @@ def remove(hash_table: HashTable, key: K) -> V:
         cur_node.next, cur_value = remove_in_node(cur_node.next)
         return cur_node, cur_value
 
-    hash_table.table[index], value = remove_in_node(hash_table.table[index])
+    hash_table.buckets[index], value = remove_in_node(hash_table.buckets[index])
     hash_table.size -= 1
+
+    if hash_table.buckets[index] is None:
+        hash_table.not_empty_buckets.remove(index)
+
     return value
 
 
@@ -85,7 +94,7 @@ def get(hash_table: HashTable, key: K) -> V:
     if not has_key(hash_table, key):
         raise ValueError("This key does not exist")
 
-    index = hash(key) % hash_table.capacity
+    index = hash_table.hash_fn(key) % hash_table.capacity
 
     def get_in_node(cur_node: HashNode) -> V:
         if cur_node.key == key:
@@ -93,14 +102,17 @@ def get(hash_table: HashTable, key: K) -> V:
 
         return get_in_node(cur_node.next)
 
-    return get_in_node(hash_table.table[index])
+    return get_in_node(hash_table.buckets[index])
 
 
 def has_key(hash_table: HashTable, key: K) -> bool:
     if hash_table.size == 0:
         return False
 
-    index = hash(key) % hash_table.capacity
+    index = hash_table.hash_fn(key) % hash_table.capacity
+
+    if index not in hash_table.not_empty_buckets:
+        return False
 
     def has_key_in_node(cur_node: HashNode) -> bool:
         if cur_node is None:
@@ -111,22 +123,19 @@ def has_key(hash_table: HashTable, key: K) -> bool:
 
         return has_key_in_node(cur_node.next)
 
-    return has_key_in_node(hash_table.table[index])
+    return has_key_in_node(hash_table.buckets[index])
 
 
 def items(hash_table: HashTable) -> list[tuple[K, V]]:
     list_pair = []
 
-    for i in range(hash_table.capacity):
-        if len(list_pair) == hash_table.size:
-            break
-        if hash_table.table[i] is not None:
+    for i in hash_table.not_empty_buckets:
 
-            def items_in_node(cur_node: HashNode) -> None:
-                if cur_node is not None:
-                    list_pair.append((cur_node.key, cur_node.value))
-                    items_in_node(cur_node.next)
+        def items_in_node(cur_node: HashNode) -> None:
+            if cur_node is not None:
+                list_pair.append((cur_node.key, cur_node.value))
+                items_in_node(cur_node.next)
 
-            items_in_node(hash_table.table[i])
+        items_in_node(hash_table.buckets[i])
 
     return list_pair

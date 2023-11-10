@@ -1,4 +1,4 @@
-from hash_table import *
+from src.practice.practice_8.hash_table import *
 import pytest
 from collections import Counter
 
@@ -63,29 +63,6 @@ def test_delete_hash_table(table, empty_table):
 def test_put(table, key, value, result_table):
     put(table, key, value)
     assert table == result_table
-
-
-@pytest.mark.parametrize(
-    "hash_list,key,value,new_list",
-    [
-        (
-            get_hash_table().table[0],
-            "Eren Yeager",
-            "without head",
-            get_hash_table(("Eren Yeager", "without head")).table,
-        ),
-        (
-            get_hash_table(("Eren Yeager", "without head")).table,
-            "Tony Stark",
-            "dead",
-            get_hash_table(
-                ("Eren Yeager", "without head"), ("Tony Stark", "dead")
-            ).table,
-        ),
-    ],
-)
-def test_put_in_node(hash_list, key, value, new_list):
-    assert put_in_node(hash_list, key, value) == new_list
 
 
 @pytest.mark.parametrize(
