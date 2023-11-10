@@ -57,7 +57,7 @@ def test_delete_hash_table(table, empty_table):
             "dead",
             get_hash_table(("Eren Yeager", "without head"), ("Tony Stark", "dead")),
         ),
-        (get_big_table(102), "103", 103, get_big_table(103)),
+        (get_big_table(9), "10", 10, get_big_table(10)),
     ],
 )
 def test_put(table, key, value, result_table):
