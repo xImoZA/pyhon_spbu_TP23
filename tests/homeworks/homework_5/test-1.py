@@ -11,6 +11,7 @@ import pytest
         (" ", "U+0020"),
         (",", "U+002C"),
         ("☎", "U+260E"),
+        ("𐀂", "U+10002"),
     ],
 )
 def test_get_unicode(symbol, expected):
@@ -26,6 +27,7 @@ def test_get_unicode(symbol, expected):
         (" ", ["00000000", "00100000"]),
         (",", ["00000000", "00101100"]),
         ("☎", ["00100110", "00001110"]),
+        ("𐀂", ["11011000", "00000000", "11011100", "00000010"]),
     ],
 )
 def test_get_utf16(symbol, expected):
@@ -47,6 +49,7 @@ def test_get_utf16(symbol, expected):
         ),
         ("𓆏", "UTF-16 encoding:\n𓆏 	 U+1318F 	 11011000 00001100 11011101 10001111\n"),
         ("⚢", "UTF-16 encoding:\n⚢ 	 U+26A2 	 00100110 10100010\n"),
+        ("𐀂", "UTF-16 encoding:\n𐀂 	 U+10002 	 11011000 00000000 11011100 00000010\n"),
     ],
 )
 def test_main(monkeypatch, mok_input, mok_output):
