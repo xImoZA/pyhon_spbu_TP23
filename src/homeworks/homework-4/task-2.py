@@ -31,7 +31,19 @@ def get_exponential_normalized(bin_integer, bin_fractional, sign):
     return f"{sign}0.{''.join(map(str, bin_fractional[-order:]))}*2^({order})"
 
 
-def get_number_in_format(integer, frac, sign, exponent_bit, mantissa_bit):
+def get_number_in_format(integer, frac, sign, num_format):
+    if num_format == 1:
+        exponent_bit = 11
+        mantissa_bit = 52
+
+    elif num_format == 2:
+        exponent_bit = 8
+        mantissa_bit = 23
+
+    else:
+        exponent_bit = 5
+        mantissa_bit = 10
+
     order = len(integer) - 1
     frac = integer[1:] + frac
     shifted_order = get_binary(order + 2 ** (exponent_bit - 1) - 1)[0]
@@ -43,8 +55,8 @@ def get_number_in_format(integer, frac, sign, exponent_bit, mantissa_bit):
         frac = frac[:mantissa_bit]
 
     if sign == "+":
-        return f"{0} {''.join(map(str, shifted_order))} {''.join(map(str, frac))}"
-    return f"{1} {''.join(map(str, shifted_order))} {''.join(map(str, frac))}"
+        return f"0 {''.join(map(str, shifted_order))} {''.join(map(str, frac))}"
+    return f"1 {''.join(map(str, shifted_order))} {''.join(map(str, frac))}"
 
 
 def main(number, num_format):
@@ -58,15 +70,15 @@ def main(number, num_format):
 
     if num_format == 1:
         print(
-            f"Number in FP64: {get_number_in_format(integer_bin, frac_bin, sign_number, 11, 52)}"
+            f"Number in FP64: {get_number_in_format(integer_bin, frac_bin, sign_number, num_format)}"
         )
     elif num_format == 2:
         print(
-            f"Number in FP32: {get_number_in_format(integer_bin, frac_bin, sign_number, 8, 23)}"
+            f"Number in FP32: {get_number_in_format(integer_bin, frac_bin, sign_number, num_format)}"
         )
     else:
         print(
-            f"Number in FP16: {get_number_in_format(integer_bin, frac_bin, sign_number, 5, 10)}"
+            f"Number in FP16: {get_number_in_format(integer_bin, frac_bin, sign_number, num_format)}"
         )
 
 
