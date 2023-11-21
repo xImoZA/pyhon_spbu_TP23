@@ -63,27 +63,6 @@ def write_in_file(file: str, value_list: list[str]) -> None:
         output_file.writelines(value_list)
 
 
-def _inorder_comparator(node: TreeNode[int, int]) -> Iterable[TreeNode[int, int]]:
-    return filter(None, (node.left_child, node, node.right_child))
-
-
-def get_balance_list(tree: TreeMap[int, int]) -> list[str]:
-    if tree.root is None:
-        return []
-
-    items = []
-
-    def items_recursion(cur_map: TreeNode[int, int]) -> None:
-        for node in _inorder_comparator(cur_map):
-            if node is not cur_map:
-                items_recursion(node)
-            else:
-                items.append(f"{node.key} {node.value}\n")
-
-    items_recursion(tree.root)
-    return items
-
-
 def find_file(name: str, path: str):
     for root, dirs, files in os.walk(path):
         if name in files:
@@ -105,7 +84,15 @@ def main():
 
     balance, result_list = read_file(find_file(log_file, "/"))
     write_in_file(result_file, result_list)
-    write_in_file(balance_file, get_balance_list(balance))
+    write_in_file(
+        balance_file,
+        list(
+            map(
+                lambda key, value: f"{key} {value}\n",
+                get_items(balance, inorder_comparator),
+            )
+        ),
+    )
 
 
 if __name__ == "__main__":
