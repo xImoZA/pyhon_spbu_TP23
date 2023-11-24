@@ -50,14 +50,26 @@ def test_select(source_tree, size, out_str, result_tree):
 
 
 def test_read_file_result():
-    result_list = read_file(find_file("shop_logs.txt", "/"))[1]
-    with open(find_file("shop_results.txt", "/"), "r") as result:
+    result_list = read_file("tests/homeworks/homework_6/test_shopping/shop_logs.txt")[1]
+    with open(
+        "tests/homeworks/homework_6/test_shopping/shop_results.txt", "r"
+    ) as result:
         for i in range(len(result_list)):
             assert result_list[i] == result.readline()
 
 
-def test_balance():
-    balance_list = get_balance_list(read_file(find_file("shop_logs.txt", "/"))[0])
-    with open(find_file("shop_balance.txt", "/"), "r") as balance:
+def test_balance_result():
+    balance_list = list(
+        map(
+            lambda item: f"{item[0]} {item[1]}\n",
+            get_items(
+                read_file("tests/homeworks/homework_6/test_shopping/shop_logs.txt")[0],
+                inorder_comparator,
+            ),
+        )
+    )
+    with open(
+        "tests/homeworks/homework_6/test_shopping/shop_balance.txt", "r"
+    ) as balance:
         for i in range(len(balance_list)):
             assert balance_list[i] == balance.readline()
