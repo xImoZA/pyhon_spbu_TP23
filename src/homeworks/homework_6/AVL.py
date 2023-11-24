@@ -123,52 +123,33 @@ def get_items(tree: TreeMap[K, V], func: Callable) -> list[(K, V)]:
 
 def delete_tree_map(tree: TreeMap[K, V]) -> None:
     for key in get_items(tree, postorder_comparator):
-        remove(tree, key)
+        remove(tree, key[0])
     del tree
 
 
 def get_node_in_tree(
-    node: TreeNode[K, V],
-    key: K,
-    value: Optional[V, TreeNode[K, V]] = None,
-    get_left_child: bool = False,
-    new_key: K = None,
+    node: TreeNode[K, V], key: K, value: Optional[V] = None
 ) -> Optional[TreeNode[K, V]]:
     if node is None:
         if value is not None:
-            if value is TreeNode:
-                return value
-
             return TreeNode(1, key, value, None, None)
-
         return None
 
     elif key < node.key:
-        if value is not None or new_key:
+        if value is not None:
             node.left_child = get_node_in_tree(node.left_child, key, value=value)
             return _balance(node)
-
         return get_node_in_tree(node.left_child, key, value=value)
 
     elif key > node.key:
-        if value is not None or new_key:
+        if value is not None:
             node.right_child = get_node_in_tree(node.right_child, key, value=value)
             return _balance(node)
-
         return get_node_in_tree(node.right_child, key, value=value)
 
-    if value is not None or new_key:
-        if new_key:
-            node.key = new_key
-
-        else:
-            node.value = value
-
+    if value is not None:
+        node.value = value
         return _balance(node)
-
-    if get_left_child:
-        return node.left_child
-
     return node
 
 
