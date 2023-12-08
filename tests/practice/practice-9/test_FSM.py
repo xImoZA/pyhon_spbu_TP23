@@ -41,6 +41,8 @@ def test_validate_string_first_dfa(string, result):
         ("123E.123456789", False),
         ("123.+1234", False),
         ("123E6+23456", False),
+        ("123.12.12", False),
+        ("123E+", False),
     },
 )
 def test_validate_string_second_dfa(string, result):

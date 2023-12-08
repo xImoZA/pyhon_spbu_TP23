@@ -33,17 +33,20 @@ def create_second_dfa() -> FSMachine:
         alphabet.append(str(num))
 
     start_state = 0
-    end_states = [1]
+    end_states = [1, 3, 6]
 
     transitions = {
         0: create_dict_with_digit(dict(), 1),
-        1: {".": 2, "E": 3},
-        2: create_dict_with_digit(dict(), 1),
-        3: {"+": 4, "-": 4},
-        4: create_dict_with_digit(dict(), 1),
+        1: {".": 2, "E": 4},
+        2: create_dict_with_digit(dict(), 3),
+        3: {"E": 4},
+        4: {"+": 5, "-": 5},
+        5: create_dict_with_digit(dict(), 6),
+        6: create_dict_with_digit(dict(), 6),
     }
     transitions[1] = create_dict_with_digit(transitions[1], 1)
-    transitions[3] = create_dict_with_digit(transitions[3], 1)
+    transitions[3] = create_dict_with_digit(transitions[3], 3)
+    transitions[4] = create_dict_with_digit(transitions[4], 6)
 
     return create_fs_machine(alphabet, transitions, start_state, end_states)
 
