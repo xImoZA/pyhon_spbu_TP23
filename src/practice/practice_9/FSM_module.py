@@ -5,8 +5,8 @@ from dataclasses import dataclass
 class FSMachine:
     alphabet: list[str]
     states: dict[int : dict[str:int]]
-    s0: int
-    F: list[int]
+    start_state: int
+    end_states: list[int]
 
 
 def create_fs_machine(
@@ -19,7 +19,7 @@ def create_fs_machine(
 
 
 def validate_string(fsm: FSMachine, string: str) -> bool:
-    now_state = fsm.s0
+    now_state = fsm.start_state
     for element in string:
         if element in fsm.alphabet:
             transitions = fsm.states[now_state]
@@ -32,4 +32,4 @@ def validate_string(fsm: FSMachine, string: str) -> bool:
         else:
             return False
 
-    return now_state in fsm.F
+    return now_state in fsm.end_states
