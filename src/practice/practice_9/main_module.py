@@ -1,69 +1,51 @@
+import string
+
 from src.practice.practice_9.FSM_module import *
 
-IN_FIRST_DFA = "A string from the language: (a|b)*abb"
-IN_SECOND_DFA = "A string from the language: digit+(.digit+)?(E(+|-)?digit+)?"
+IN_DFA = "A string from the language: "
 NOT_IN_FSM = "The language of the entered string was not found"
+LANGUAGE = ["(a|b)*abb", "digit+(.digit+)?(E(+|-)?digit+)?"]
 
 
-def create_first_dfa() -> FSMachine:
-    alphabet = ["a", "b"]
-    start_state = 0
-    end_states = [3]
-    transitions = {
-        0: {"b": 0, "a": 1},
-        1: {"a": 1, "b": 2},
-        2: {"a": 1, "b": 3},
-        3: {"a": 1, "b": 0},
-    }
+def create_dfa(name_language: str) -> FSMachine:
+    if name_language == LANGUAGE[0]:
+        start_state = 0
+        end_states = [3]
+        transitions = {
+            0: {"b": 0, "a": 1},
+            1: {"a": 1, "b": 2},
+            2: {"a": 1, "b": 3},
+            3: {"a": 1, "b": 0},
+        }
 
-    return create_fs_machine(alphabet, transitions, start_state, end_states)
+    elif name_language == LANGUAGE[1]:
+        start_state = 0
+        end_states = [1, 3, 6]
+        transitions = {
+            0: {string.digits: 1},
+            1: {".": 2, "E": 4, string.digits: 1},
+            2: {string.digits: 3},
+            3: {"E": 4, string.digits: 3},
+            4: {"+": 5, "-": 5, string.digits: 6},
+            5: {string.digits: 6},
+            6: {string.digits: 6},
+        }
 
-
-def create_dict_with_digit(now_dict: dict, end_state: int) -> dict:
-    new_dict = now_dict
-    for i in range(10):
-        new_dict[str(i)] = end_state
-
-    return new_dict
-
-
-def create_second_dfa() -> FSMachine:
-    alphabet = [".", "E", "+", "-"]
-    for num in range(10):
-        alphabet.append(str(num))
-
-    start_state = 0
-    end_states = [1, 3, 6]
-
-    transitions = {
-        0: create_dict_with_digit(dict(), 1),
-        1: {".": 2, "E": 4},
-        2: create_dict_with_digit(dict(), 3),
-        3: {"E": 4},
-        4: {"+": 5, "-": 5},
-        5: create_dict_with_digit(dict(), 6),
-        6: create_dict_with_digit(dict(), 6),
-    }
-    transitions[1] = create_dict_with_digit(transitions[1], 1)
-    transitions[3] = create_dict_with_digit(transitions[3], 3)
-    transitions[4] = create_dict_with_digit(transitions[4], 6)
-
-    return create_fs_machine(alphabet, transitions, start_state, end_states)
+    return create_fs_machine(transitions, start_state, end_states)
 
 
-def main():
-    first_dfa = create_first_dfa()
-    second_dfa = create_second_dfa()
+def main() -> None:
+    dfa_machines = []
+    for language in LANGUAGE:
+        dfa_machines.append(create_dfa(language))
 
-    string = input("To check, enter the following line: ")
-    if validate_string(first_dfa, string):
-        print(IN_FIRST_DFA)
+    input_str = input("To check, enter the following line: ")
+    for i in range(len(dfa_machines)):
+        if validate_string(dfa_machines[i], input_str):
+            print(IN_DFA + LANGUAGE[i])
+            return
 
-    elif validate_string(second_dfa, string):
-        print(IN_SECOND_DFA)
-
-    else:
-        print(NOT_IN_FSM)
+    print(NOT_IN_FSM)
 
 
 if __name__ == "__main__":

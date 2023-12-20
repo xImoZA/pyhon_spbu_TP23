@@ -5,7 +5,7 @@ import pytest
 
 
 @pytest.mark.parametrize(
-    "string,result",
+    "input_str,result",
     {
         ("abb", True),
         ("aaaaaaaaaaaaaaabb", True),
@@ -17,12 +17,12 @@ import pytest
         ("ababbababaabba", False),
     },
 )
-def test_validate_string_first_dfa(string, result):
-    assert validate_string(create_first_dfa(), string) == result
+def test_validate_string_first_dfa(input_str, result):
+    assert validate_string(create_dfa(LANGUAGE[0]), input_str) == result
 
 
 @pytest.mark.parametrize(
-    "string,result",
+    "input_str,result",
     {
         ("1234567890", True),
         ("0123456789", True),
@@ -45,17 +45,17 @@ def test_validate_string_first_dfa(string, result):
         ("123E+", False),
     },
 )
-def test_validate_string_second_dfa(string, result):
-    assert validate_string(create_second_dfa(), string) == result
+def test_validate_string_second_dfa(input_str, result):
+    assert validate_string(create_dfa(LANGUAGE[1]), input_str) == result
 
 
 @pytest.mark.parametrize(
     "mok_input,mok_output",
     [
-        ("abb", f"{IN_FIRST_DFA}\n"),
+        ("abb", f"{IN_DFA}{LANGUAGE[0]}\n"),
         ("azsxdcfvgbhnj", f"{NOT_IN_FSM}\n"),
-        ("1234567890", f"{IN_SECOND_DFA}\n"),
-        ("123E+1234567890", f"{IN_SECOND_DFA}\n"),
+        ("1234567890", f"{IN_DFA}{LANGUAGE[1]}\n"),
+        ("123E+1234567890", f"{IN_DFA}{LANGUAGE[1]}\n"),
         ("123E.123456789", f"{NOT_IN_FSM}\n"),
     ],
 )
