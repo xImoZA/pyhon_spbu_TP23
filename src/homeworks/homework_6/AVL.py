@@ -1,3 +1,4 @@
+import operator
 from dataclasses import dataclass
 from typing import TypeVar, Generic, Optional, Iterable, Callable
 
@@ -232,14 +233,18 @@ def has_key(tree: TreeMap[K, V], key: K) -> bool:
     return bool(get_node_in_tree(tree.root, key))
 
 
-def recursion(cur_node: TreeNode[K, V], key: K, cur_min: K) -> K:
+def _recursion_get_bound(
+    cur_node: TreeNode[K, V], key: K, cur_min: K, cmp: operator
+) -> K:
     if key < cur_node.key and cur_node.left_child is not None:
-        return recursion(cur_node.left_child, key, min(cur_node.key, cur_min))
+        return _recursion_get_bound(
+            cur_node.left_child, key, min(cur_node.key, cur_min), cmp
+        )
 
     elif key > cur_node.key and cur_node.right_child is not None:
-        return recursion(cur_node.right_child, key, cur_min)
+        return _recursion_get_bound(cur_node.right_child, key, cur_min, cmp)
 
-    if cur_node.key > key:
+    if cmp(cur_node.key, key):
         return cur_node.key
     return cur_min
 
@@ -252,7 +257,7 @@ def get_lower_bound(tree: TreeMap[K, V], key: K) -> K:
     if max_key == key:
         return key
 
-    return recursion(tree.root, key, max_key)
+    return _recursion_get_bound(tree.root, key, max_key, operator.ge)
 
 
 def get_higher_bound(tree: TreeMap[K, V], key: K) -> K:
@@ -261,7 +266,7 @@ def get_higher_bound(tree: TreeMap[K, V], key: K) -> K:
     if max_key <= key:
         raise ValueError("There is no key strictly greater than entered")
 
-    return recursion(tree.root, key, max_key)
+    return _recursion_get_bound(tree.root, key, max_key, operator.gt)
 
 
 def get_max(tree: TreeMap[K, V]) -> K:
