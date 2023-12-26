@@ -63,26 +63,23 @@ def write_in_file(file: str, value_list: list[str]) -> None:
         output_file.writelines(value_list)
 
 
-def find_file(name: str, path: str):
-    for root, dirs, files in os.walk(path):
-        if name in files:
-            return os.path.join(root, name)
-
-
-def main():
+def main() -> None:
     log_file = input("Enter the name of the input file: ")
     if not os.path.exists(log_file):
         print(f"File {log_file} not exist")
+        return
 
     result_file = input("Enter the name of the results file: ")
     if os.path.exists(result_file):
         print(f"File {result_file} already exist")
+        return
 
     balance_file = input("Enter the name of the file with the stock balance: ")
     if os.path.exists(balance_file):
         print(f"File {balance_file} already exist")
+        return
 
-    balance, result_list = read_file(find_file(log_file, "/"))
+    balance, result_list = read_file(log_file)
     write_in_file(result_file, result_list)
     write_in_file(
         balance_file,
