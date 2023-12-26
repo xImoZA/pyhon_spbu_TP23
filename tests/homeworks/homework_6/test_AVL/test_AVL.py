@@ -36,38 +36,26 @@ def test_delete_tree_map(source_tree):
 @pytest.mark.parametrize(
     "source_tree,key,value,result_tree",
     [
-        (create_test_tree(), 4, "*", create_test_tree((4, "*"))),
-        (
-            create_test_tree((4, "*"), (2, "+")),
-            1,
-            "x",
-            create_test_tree((4, "*"), (2, "+"), (1, "x")),
-        ),
-        (
-            create_test_tree((4, "*"), (2, "+")),
-            4,
-            "z",
-            create_test_tree((4, "z"), (2, "+")),
-        ),
+        (create_test_tree(), 4, "*", [(4, "*")]),
+        (create_test_tree((4, "*"), (2, "+")), 1, "x", [(1, "x"), (4, "*"), (2, "+")]),
+        (create_test_tree((4, "*"), (2, "+")), 4, "z", [(2, "+"), (4, "z")]),
         (
             create_test_tree((1, "A"), (2, "p"), (6, "q"), (4, "s")),
             3,
             "B",
-            create_test_tree((1, "A"), (2, "p"), (4, "s"), (3, "B"), (6, "q")),
+            [(1, "A"), (3, "B"), (6, "q"), (4, "s"), (2, "p")],
         ),
         (
             create_test_tree((1, "A"), (2, "p"), (4, "s"), (3, "B"), (6, "q")),
             5,
             "C",
-            create_test_tree(
-                (4, "s"), (2, "p"), (1, "A"), (3, "B"), (6, "q"), (5, "C")
-            ),
+            [(1, "A"), (3, "B"), (2, "p"), (5, "C"), (6, "q"), (4, "s")],
         ),
     ],
 )
 def test_put(source_tree, key, value, result_tree):
     put(source_tree, key, value)
-    assert source_tree == result_tree
+    assert get_items(source_tree, postorder_comparator) == result_tree
 
 
 @pytest.mark.parametrize(
