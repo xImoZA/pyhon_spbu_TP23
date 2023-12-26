@@ -3,13 +3,13 @@ from dataclasses import dataclass
 
 @dataclass
 class FSMachine:
-    states: dict[int, dict[str:int]]
+    states: dict[int, dict[str, int]]
     start_state: int
     terminal_states: list[int]
 
 
 def create_fs_machine(
-    transitions: dict[int, dict[str:int]],
+    transitions: dict[int, dict[str, int]],
     start: int,
     end_states: list[int],
 ) -> FSMachine:
