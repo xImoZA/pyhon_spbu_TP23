@@ -1,4 +1,5 @@
 import operator
+from copy import copy
 from dataclasses import dataclass
 from typing import TypeVar, Generic, Optional, Iterable, Callable
 
@@ -128,8 +129,8 @@ def delete_tree_map(tree: TreeMap[K, V]) -> None:
 
 
 def get_node_in_tree(
-    node: TreeNode[K, V], key: K, value: Optional[V] = None
-) -> Optional[TreeNode[K, V]]:
+    node: TreeNode[K, V], key: K, value: Optional[V] = None, get_right_child=False
+) -> Optional[TreeNode[K, V] | TreeNode[K, V]]:
     if node is None:
         if value is not None:
             return TreeNode(key, value, 1, None, None)
@@ -137,15 +138,26 @@ def get_node_in_tree(
 
     elif key < node.key:
         if value is not None:
-            node.left_child = get_node_in_tree(node.left_child, key, value=value)
+            node.left_child = get_node_in_tree(
+                node.left_child, key, value=value, get_right_child=get_right_child
+            )
             return _balance(node)
-        return get_node_in_tree(node.left_child, key, value=value)
+        return get_node_in_tree(
+            node.left_child, key, value=value, get_right_child=get_right_child
+        )
 
     elif key > node.key:
         if value is not None:
-            node.right_child = get_node_in_tree(node.right_child, key, value=value)
+            node.right_child = get_node_in_tree(
+                node.right_child, key, value=value, get_right_child=get_right_child
+            )
             return _balance(node)
-        return get_node_in_tree(node.right_child, key, value=value)
+        return get_node_in_tree(
+            node.right_child, key, value=value, get_right_child=get_right_child
+        )
+
+    if get_right_child:
+        return node.right_child
 
     if value is not None:
         node.value = value
@@ -160,44 +172,41 @@ def put(tree: TreeMap[K, V], key: K, value: V) -> None:
     tree.root = get_node_in_tree(tree.root, key, value=value)
 
 
+def remove_recursion(
+    cur_node: TreeNode[K, V], cur_key: K
+) -> (Optional[TreeNode[K, V]], V):
+    if cur_key < cur_node.key:
+        new_left_child, return_value = remove_recursion(cur_node.left_child, cur_key)
+        cur_node.left_child = new_left_child
+        return _balance(cur_node), return_value
+
+    if cur_key > cur_node.key:
+        new_right_child, return_value = remove_recursion(cur_node.right_child, cur_key)
+        cur_node.right_child = new_right_child
+        return _balance(cur_node), return_value
+
+    if cur_node.left_child is None and cur_node.right_child is None:
+        return None, cur_node.value
+
+    if cur_node.left_child is None:
+        return cur_node.right_child, cur_node.value
+
+    if cur_node.right_child is None:
+        return cur_node.left_child, cur_node.value
+
+    key_min, value_min = get_min_in_node(cur_node.right_child)
+    return_value = cur_node.value
+    new_cur_node = TreeNode(
+        key_min,
+        value_min,
+        1,
+        cur_node.left_child,
+        remove_recursion(cur_node.right_child, key_min)[0],
+    )
+    return _balance(new_cur_node), return_value
+
+
 def remove(tree: TreeMap[K, V], key: K) -> V:
-    def remove_recursion(
-        cur_node: TreeNode[K, V], cur_key: K
-    ) -> (Optional[TreeNode[K, V]], V):
-        if cur_key < cur_node.key:
-            new_left_child, return_value = remove_recursion(
-                cur_node.left_child, cur_key
-            )
-            cur_node.left_child = new_left_child
-            return _balance(cur_node), return_value
-
-        if cur_key > cur_node.key:
-            new_right_child, return_value = remove_recursion(
-                cur_node.right_child, cur_key
-            )
-            cur_node.right_child = new_right_child
-            return _balance(cur_node), return_value
-
-        if cur_node.left_child is None and cur_node.right_child is None:
-            return None, cur_node.value
-
-        if cur_node.left_child is None:
-            return cur_node.right_child, cur_node.value
-
-        if cur_node.right_child is None:
-            return cur_node.left_child, cur_node.value
-
-        key_min, value_min = get_min_in_node(cur_node.right_child)
-        return_value = cur_node.value
-        new_cur_node = TreeNode(
-            key_min,
-            value_min,
-            1,
-            cur_node.left_child,
-            remove_recursion(cur_node.right_child, key_min)[0],
-        )
-        return _balance(new_cur_node), return_value
-
     if tree.root is None:
         raise ValueError("Tree is empty")
 
@@ -288,3 +297,36 @@ def get_min(tree: TreeMap[K, V]) -> K:
         raise ValueError("Tree is empty")
 
     return get_min_in_node(tree.root)[0]
+
+
+def remove_keys(tree_map: TreeMap, left: K, right: K) -> None:
+    def remove_keys_node(root: TreeNode) -> Optional[TreeNode]:
+        if root:
+            root.left = remove_keys_node(root.left)
+            root.right = remove_keys_node(root.right)
+
+        if root is None:
+            return None
+
+        if not (left <= root.key <= right):
+            root, value = remove_recursion(root, root.key)
+
+        return root
+
+    tree_map.root = _balance(remove_keys_node(tree_map.root))
+
+
+def split(tree_map: TreeMap, key: K) -> tuple[TreeMap, TreeMap]:
+    smaller_tree = copy(tree_map)
+    bigger_tree = create_tree_map()
+
+    bigger_tree.root = get_node_in_tree(tree_map.root, key, get_right_child=True)
+    remove_keys(smaller_tree, get_min_in_node(bigger_tree.root)[0], key)
+
+    return smaller_tree, bigger_tree
+
+
+def get_all(tree_map: TreeMap, left: K, right: K) -> list[K]:
+    small_tree, _ = split(tree_map, right)
+    keys = get_items(small_tree, postorder_comparator) + [right]
+    return [i for i in keys if left <= keys <= right]
