@@ -8,9 +8,9 @@ K = TypeVar("K")
 
 @dataclass
 class TreeNode(Generic[K, V]):
+    key: Optional[K]
+    value: Optional[V]
     height: int = 1
-    key: Optional[K] = None
-    value: Optional[V] = None
     left_child: Optional["TreeNode[K, V]"] = None
     right_child: Optional["TreeNode[K, V]"] = None
 
@@ -132,7 +132,7 @@ def get_node_in_tree(
 ) -> Optional[TreeNode[K, V]]:
     if node is None:
         if value is not None:
-            return TreeNode(1, key, value, None, None)
+            return TreeNode(key, value, 1, None, None)
         return None
 
     elif key < node.key:
@@ -190,9 +190,9 @@ def remove(tree: TreeMap[K, V], key: K) -> V:
         key_min, value_min = get_min_in_node(cur_node.right_child)
         return_value = cur_node.value
         new_cur_node = TreeNode(
-            1,
             key_min,
             value_min,
+            1,
             cur_node.left_child,
             remove_recursion(cur_node.right_child, key_min)[0],
         )
@@ -211,26 +211,29 @@ def remove(tree: TreeMap[K, V], key: K) -> V:
 
 def get_min_in_node(node: TreeNode[K, V]) -> (K, V):
     if node is None:
-        raise ValueError("Root is None")
+        return ValueError("Root is None")
 
-    if node.left_child is None:
-        return node.key, node.value
+    while node.left_child is not None:
+        node = node.left_child
 
-    return get_min_in_node(node.left_child)
+    return node.key, node.value
 
 
 def get(tree: TreeMap[K, V], key: K) -> V:
-    if not has_key(tree, key):
+    node = get_node_in_tree(tree.root, key)
+
+    if node is None:
         raise ValueError("Key not found")
 
-    return get_node_in_tree(tree.root, key).value
+    return node.value
 
 
 def has_key(tree: TreeMap[K, V], key: K) -> bool:
-    if tree is None:
+    node = get_node_in_tree(tree.root, key)
+    if tree is None or node is None:
         return False
 
-    return bool(get_node_in_tree(tree.root, key))
+    return True
 
 
 def _recursion_get_bound(
@@ -273,12 +276,11 @@ def get_max(tree: TreeMap[K, V]) -> K:
     if tree.root is None:
         raise ValueError("Tree is empty")
 
-    def get_max_recursion(cur_node: TreeNode[K, V]) -> K:
-        if cur_node.right_child is not None:
-            return get_max_recursion(cur_node.right_child)
-        return cur_node.key
+    cur_node = tree.root
+    while cur_node.right_child is not None:
+        cur_node = cur_node.right_child
 
-    return get_max_recursion(tree.root)
+    return cur_node.key
 
 
 def get_min(tree: TreeMap[K, V]) -> K:
