@@ -8,7 +8,7 @@ K = TypeVar("K")
 
 @dataclass
 class TreeNode(Generic[K, V]):
-    key: Optional[K]
+    key: K
     value: Optional[V]
     height: int = 1
     left_child: Optional["TreeNode[K, V]"] = None
@@ -230,10 +230,8 @@ def get(tree: TreeMap[K, V], key: K) -> V:
 
 def has_key(tree: TreeMap[K, V], key: K) -> bool:
     node = get_node_in_tree(tree.root, key)
-    if tree is None or node is None:
-        return False
 
-    return True
+    return node is not None
 
 
 def _recursion_get_bound(
