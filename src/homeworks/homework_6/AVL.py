@@ -1,5 +1,4 @@
 import operator
-from copy import copy
 from dataclasses import dataclass
 from typing import TypeVar, Generic, Optional, Iterable, Callable
 
@@ -9,7 +8,7 @@ K = TypeVar("K")
 
 @dataclass
 class TreeNode(Generic[K, V]):
-    key: Optional[K]
+    key: K
     value: Optional[V]
     height: int = 1
     left_child: Optional["TreeNode[K, V]"] = None
@@ -129,8 +128,8 @@ def delete_tree_map(tree: TreeMap[K, V]) -> None:
 
 
 def get_node_in_tree(
-    node: TreeNode[K, V], key: K, value: Optional[V] = None, get_right_child=False
-) -> Optional[TreeNode[K, V] | TreeNode[K, V]]:
+    node: TreeNode[K, V], key: K, value: Optional[V] = None
+) -> Optional[TreeNode[K, V]]:
     if node is None:
         if value is not None:
             return TreeNode(key, value, 1, None, None)
@@ -138,26 +137,15 @@ def get_node_in_tree(
 
     elif key < node.key:
         if value is not None:
-            node.left_child = get_node_in_tree(
-                node.left_child, key, value=value, get_right_child=get_right_child
-            )
+            node.left_child = get_node_in_tree(node.left_child, key, value=value)
             return _balance(node)
-        return get_node_in_tree(
-            node.left_child, key, value=value, get_right_child=get_right_child
-        )
+        return get_node_in_tree(node.left_child, key, value=value)
 
     elif key > node.key:
         if value is not None:
-            node.right_child = get_node_in_tree(
-                node.right_child, key, value=value, get_right_child=get_right_child
-            )
+            node.right_child = get_node_in_tree(node.right_child, key, value=value)
             return _balance(node)
-        return get_node_in_tree(
-            node.right_child, key, value=value, get_right_child=get_right_child
-        )
-
-    if get_right_child:
-        return node.right_child
+        return get_node_in_tree(node.right_child, key, value=value)
 
     if value is not None:
         node.value = value
@@ -299,34 +287,148 @@ def get_min(tree: TreeMap[K, V]) -> K:
     return get_min_in_node(tree.root)[0]
 
 
+def get_max_in_node(node: TreeNode[K, V]) -> (K, V):
+    if node is None:
+        return ValueError("Root is None")
+
+    while node.right_child is not None:
+        node = node.right_child
+
+    return node.key, node.value
+
+
 def remove_keys(tree_map: TreeMap, left: K, right: K) -> None:
-    def remove_keys_node(root: TreeNode) -> Optional[TreeNode]:
-        if root:
-            root.left = remove_keys_node(root.left)
-            root.right = remove_keys_node(root.right)
+    small_tree, _ = split(tree_map, left)
+    _, big_tree = split(tree_map, right)
+    tree_map.root = merge(small_tree, big_tree).root
 
-        if root is None:
-            return None
 
-        if not (left <= root.key <= right):
-            root, value = remove_recursion(root, root.key)
+def merge_node(
+    tree_node_1: TreeNode[K, V], tree_node_2: TreeNode[K, V]
+) -> TreeNode[K, V]:
+    key_max_1, value_max_1 = get_max_in_node(tree_node_1)
+    tree_node_1 = remove_recursion(tree_node_1, key_max_1)[0]
 
-        return root
+    def recursion(node: TreeNode[K, V]) -> TreeNode[K, V]:
+        if tree_node_1 is None or node.height == tree_node_1.height:
+            return TreeNode(key_max_1, value_max_1, node.height + 1, tree_node_1, node)
 
-    tree_map.root = _balance(remove_keys_node(tree_map.root))
+        node.left_child = recursion(node.left_child)
+        return _balance(node)
+
+    return recursion(tree_node_2)
+
+
+def merge_with_smaller(
+    tree_map_1: TreeMap[K, V], tree_map_2: TreeMap[K, V]
+) -> TreeMap[K, V]:
+    tree_map_2.root = merge_node(tree_map_1.root, tree_map_2.root)
+    tree_map_2.size += tree_map_1.size
+    return tree_map_2
+
+
+def merge_with_bigger(
+    tree_map_1: TreeMap[K, V], tree_map_2: TreeMap[K, V]
+) -> TreeMap[K, V]:
+    tree_map_1.root = merge_node_with_bigger(tree_map_1.root, tree_map_2.root)
+    tree_map_1.size += tree_map_2.size
+    return tree_map_1
+
+
+def merge_node_with_bigger(
+    node_1: TreeNode[K, V], node_2: TreeNode[K, V]
+) -> TreeNode[K, V]:
+    if node_1.height != node_2.height:
+        node_1.right_child = merge_node_with_bigger(node_1.right_child, node_2)
+        return _balance(node_1)
+
+    return merge_node(node_1, node_2)
+
+
+def merge_trees(tree_map_1: TreeMap[K, V], tree_map_2: TreeMap[K, V]) -> TreeMap[K, V]:
+    min_tree = min(tree_map_1, tree_map_2, key=lambda x: x.size)
+    result_tree = max(tree_map_1, tree_map_2, key=lambda x: x.size)
+
+    for key, value in get_items(min_tree, postorder_comparator):
+        put(result_tree, key, value)
+
+    return result_tree
+
+
+def merge(tree_map_1: TreeMap[K, V], tree_map_2: TreeMap[K, V]) -> TreeMap[K, V]:
+    if (
+        get_max(tree_map_1) < get_min(tree_map_2)
+        and tree_map_1.root.height <= tree_map_2.root.height
+    ):
+        return merge_with_smaller(tree_map_1, tree_map_2)
+
+    if (
+        get_max(tree_map_2) < get_min(tree_map_1)
+        and tree_map_1.root.height >= tree_map_2.root.height
+    ):
+        return merge_with_smaller(tree_map_2, tree_map_1)
+
+    if (
+        get_max(tree_map_1) < get_min(tree_map_2)
+        and tree_map_1.root.height > tree_map_2.root.height
+    ):
+        return merge_with_bigger(tree_map_1, tree_map_2)
+
+    if (
+        get_max(tree_map_2) < get_min(tree_map_1)
+        and tree_map_1.root.height < tree_map_2.root.height
+    ):
+        return merge_with_bigger(tree_map_2, tree_map_1)
+
+    return merge_trees(tree_map_1, tree_map_2)
 
 
 def split(tree_map: TreeMap, key: K) -> tuple[TreeMap, TreeMap]:
-    smaller_tree = copy(tree_map)
+    smaller_tree = create_tree_map()
     bigger_tree = create_tree_map()
 
-    bigger_tree.root = get_node_in_tree(tree_map.root, key, get_right_child=True)
-    remove_keys(smaller_tree, get_min_in_node(bigger_tree.root)[0], key)
+    def recursion(
+        node: TreeNode[K, V], small_tree: TreeMap[K, V], big_tree: TreeMap[K, V]
+    ) -> (TreeMap, TreeMap):
+        if node:
+            if node.key < key:
+                new_node = get_node_in_tree(node.left_child, node.key, value=node.value)
+                if small_tree.root:
+                    small_tree = merge(small_tree, TreeMap(new_node, 0))
+                else:
+                    small_tree = TreeMap(new_node, 0)
+
+                return recursion(node.right_child, small_tree, big_tree)
+
+            elif node.key >= key:
+                new_node = get_node_in_tree(
+                    node.right_child, node.key, value=node.value
+                )
+                if big_tree.root:
+                    big_tree = merge(big_tree, TreeMap(new_node, 0))
+                else:
+                    big_tree = TreeMap(new_node, 0)
+
+                return recursion(node.left_child, small_tree, big_tree)
+        return small_tree, big_tree
+
+    # я не придумала ничего адекватного (((
+    smaller_tree, bigger_tree = recursion(tree_map.root, smaller_tree, bigger_tree)
+    smaller_tree.size = len(get_items(smaller_tree, postorder_comparator))
+    bigger_tree.size = len(get_items(bigger_tree, postorder_comparator))
 
     return smaller_tree, bigger_tree
 
 
+def create_test_tree(*args):
+    tree = create_tree_map()
+    for key, value in args:
+        put(tree, key, value)
+    return tree
+
+
 def get_all(tree_map: TreeMap, left: K, right: K) -> list[K]:
     small_tree, _ = split(tree_map, right)
-    keys = get_items(small_tree, postorder_comparator) + [right]
-    return [i for i in keys if left <= keys <= right]
+    _, result_tree = split(small_tree, left)
+    items = get_items(result_tree, postorder_comparator)
+    return [item[0] for item in items]
