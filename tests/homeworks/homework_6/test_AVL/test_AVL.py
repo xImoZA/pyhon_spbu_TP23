@@ -1,3 +1,5 @@
+from random import randint
+from src.homeworks.homework_6.AVL import _balance_factor
 from src.homeworks.homework_6.AVL import *
 import pytest
 
@@ -33,29 +35,24 @@ def test_delete_tree_map(source_tree):
     assert source_tree == create_test_tree()
 
 
-@pytest.mark.parametrize(
-    "source_tree,key,value,result_tree",
-    [
-        (create_test_tree(), 4, "*", [(4, "*")]),
-        (create_test_tree((4, "*"), (2, "+")), 1, "x", [(1, "x"), (4, "*"), (2, "+")]),
-        (create_test_tree((4, "*"), (2, "+")), 4, "z", [(2, "+"), (4, "z")]),
-        (
-            create_test_tree((1, "A"), (2, "p"), (6, "q"), (4, "s")),
-            3,
-            "B",
-            [(1, "A"), (3, "B"), (6, "q"), (4, "s"), (2, "p")],
-        ),
-        (
-            create_test_tree((1, "A"), (2, "p"), (4, "s"), (3, "B"), (6, "q")),
-            5,
-            "C",
-            [(1, "A"), (3, "B"), (2, "p"), (5, "C"), (6, "q"), (4, "s")],
-        ),
-    ],
-)
-def test_put(source_tree, key, value, result_tree):
-    put(source_tree, key, value)
-    assert get_items(source_tree, postorder_comparator) == result_tree
+@pytest.mark.parametrize("size", (5, 10, 15, 20, 25, 100))
+def test_put(size):
+    tree = create_tree_map()
+
+    def test_put_recursion(tree_node):
+        assert abs(_balance_factor(tree_node)) < 2
+        if tree_node.left_child is not None:
+            test_put_recursion(tree_node.left_child)
+            assert tree_node.left_child.key < tree_node.key
+
+        if tree_node.right_child is not None:
+            test_put_recursion(tree_node.right_child)
+            assert tree_node.right_child.key > tree_node.key
+
+    for i in range(size):
+        key_value = randint(0, 10000)
+        put(tree, key_value, key_value)
+        test_put_recursion(tree.root)
 
 
 @pytest.mark.parametrize(

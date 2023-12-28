@@ -228,10 +228,8 @@ def get(tree: TreeMap[K, V], key: K) -> V:
 
 def has_key(tree: TreeMap[K, V], key: K) -> bool:
     node = get_node_in_tree(tree.root, key)
-    if tree is None or node is None:
-        return False
+    return node is not None
 
-    return True
 
 
 def _recursion_get_bound(
@@ -382,9 +380,6 @@ def merge(tree_map_1: TreeMap[K, V], tree_map_2: TreeMap[K, V]) -> TreeMap[K, V]
 
 
 def split(tree_map: TreeMap, key: K) -> tuple[TreeMap, TreeMap]:
-    smaller_tree = create_tree_map()
-    bigger_tree = create_tree_map()
-
     def recursion(
         node: TreeNode[K, V], small_tree: TreeMap[K, V], big_tree: TreeMap[K, V]
     ) -> (TreeMap, TreeMap):
