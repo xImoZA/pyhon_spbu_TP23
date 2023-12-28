@@ -36,7 +36,7 @@ def test_static():
         ),
     ],
 )
-def test_main(monkeypatch, user_input, expected) -> None:
+def test_interactive_mode(monkeypatch, user_input, expected) -> None:
     monkeypatch.setattr("builtins.input", lambda _: user_input.pop(0))
     fake_output = StringIO()
     monkeypatch.setattr("sys.stdout", fake_output)
@@ -59,6 +59,10 @@ def test_main(monkeypatch, user_input, expected) -> None:
         (
             ["1", "CREATE ONLY THREE ARGS", "EXIT"],
             "1) Read the file and create new file with result\n2) Interactive mode\nFile CREATE ONLY THREE ARGS not exist\n",
+        ),
+        (
+            ["2", "CREATE ONLY THREE ARGS", "EXIT"],
+            "1) Read the file and create new file with result\n2) Interactive mode\nTo exit program enter EXIT\nIncorrect command\n",
         ),
     ],
 )

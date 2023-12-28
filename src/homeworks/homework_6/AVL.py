@@ -1,4 +1,5 @@
 import operator
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import TypeVar, Generic, Optional, Iterable, Callable
 
@@ -273,11 +274,7 @@ def get_max(tree: TreeMap[K, V]) -> K:
     if tree.root is None:
         raise ValueError("Tree is empty")
 
-    cur_node = tree.root
-    while cur_node.right_child is not None:
-        cur_node = cur_node.right_child
-
-    return cur_node.key
+    return get_max_in_node(tree.root)[0]
 
 
 def get_min(tree: TreeMap[K, V]) -> K:
@@ -310,8 +307,16 @@ def merge_node(
     tree_node_1 = remove_recursion(tree_node_1, key_max_1)[0]
 
     def recursion(node: TreeNode[K, V]) -> TreeNode[K, V]:
-        if tree_node_1 is None or node.height == tree_node_1.height:
-            return TreeNode(key_max_1, value_max_1, node.height + 1, tree_node_1, node)
+        if tree_node_1 is None or node is None or node.height <= tree_node_1.height:
+            if node is not None:
+                return _balance(
+                    TreeNode(key_max_1, value_max_1, node.height + 1, tree_node_1, node)
+                )
+            return _balance(
+                TreeNode(
+                    key_max_1, value_max_1, tree_node_1.height + 1, tree_node_1, node
+                )
+            )
 
         node.left_child = recursion(node.left_child)
         return _balance(node)
@@ -338,7 +343,7 @@ def merge_with_bigger(
 def merge_node_with_bigger(
     node_1: TreeNode[K, V], node_2: TreeNode[K, V]
 ) -> TreeNode[K, V]:
-    if node_1.height != node_2.height:
+    if node_1.height > node_2.height:
         node_1.right_child = merge_node_with_bigger(node_1.right_child, node_2)
         return _balance(node_1)
 
@@ -356,28 +361,21 @@ def merge_trees(tree_map_1: TreeMap[K, V], tree_map_2: TreeMap[K, V]) -> TreeMap
 
 
 def merge(tree_map_1: TreeMap[K, V], tree_map_2: TreeMap[K, V]) -> TreeMap[K, V]:
-    if (
-        get_max(tree_map_1) < get_min(tree_map_2)
-        and tree_map_1.root.height <= tree_map_2.root.height
-    ):
+    max_value_1 = get_max(tree_map_1)
+    min_value_1 = get_min(tree_map_1)
+    max_value_2 = get_max(tree_map_2)
+    min_value_2 = get_min(tree_map_2)
+
+    if max_value_1 < min_value_2 and tree_map_1.root.height <= tree_map_2.root.height:
         return merge_with_smaller(tree_map_1, tree_map_2)
 
-    if (
-        get_max(tree_map_2) < get_min(tree_map_1)
-        and tree_map_1.root.height >= tree_map_2.root.height
-    ):
+    if max_value_2 < min_value_1 and tree_map_1.root.height >= tree_map_2.root.height:
         return merge_with_smaller(tree_map_2, tree_map_1)
 
-    if (
-        get_max(tree_map_1) < get_min(tree_map_2)
-        and tree_map_1.root.height > tree_map_2.root.height
-    ):
+    if max_value_1 < min_value_2 and tree_map_1.root.height > tree_map_2.root.height:
         return merge_with_bigger(tree_map_1, tree_map_2)
 
-    if (
-        get_max(tree_map_2) < get_min(tree_map_1)
-        and tree_map_1.root.height < tree_map_2.root.height
-    ):
+    if max_value_2 < min_value_1 and tree_map_1.root.height < tree_map_2.root.height:
         return merge_with_bigger(tree_map_2, tree_map_1)
 
     return merge_trees(tree_map_1, tree_map_2)
@@ -412,23 +410,17 @@ def split(tree_map: TreeMap, key: K) -> tuple[TreeMap, TreeMap]:
                 return recursion(node.left_child, small_tree, big_tree)
         return small_tree, big_tree
 
-    # я не придумала ничего адекватного (((
     smaller_tree, bigger_tree = recursion(tree_map.root, smaller_tree, bigger_tree)
+    # я не придумала ничего адекватного (((
     smaller_tree.size = len(get_items(smaller_tree, postorder_comparator))
     bigger_tree.size = len(get_items(bigger_tree, postorder_comparator))
 
     return smaller_tree, bigger_tree
 
 
-def create_test_tree(*args):
-    tree = create_tree_map()
-    for key, value in args:
-        put(tree, key, value)
-    return tree
-
-
 def get_all(tree_map: TreeMap, left: K, right: K) -> list[K]:
-    small_tree, _ = split(tree_map, right)
+    work_tree = deepcopy(tree_map)
+    small_tree, _ = split(work_tree, right)
     _, result_tree = split(small_tree, left)
     items = get_items(result_tree, postorder_comparator)
     return [item[0] for item in items]

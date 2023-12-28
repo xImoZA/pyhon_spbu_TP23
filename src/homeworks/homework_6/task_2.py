@@ -1,87 +1,59 @@
 import os
-
 from src.homeworks.homework_6.AVL import *
 
 
 def create(
     tree_map: TreeMap[K, V], street: str, house: int, building: int, index: int
 ) -> None:
-    if has_key(tree_map, street):
-        houses = get_node_in_tree(tree_map.root, street).value
-        if has_key(houses, house):
-            buildings = get_node_in_tree(houses.root, house).value
-            buildings.append((building, index))
-            buildings.sort()
-        else:
-            put(houses, house, [(building, index)])
-    else:
-        house_tree = create_tree_map()
-        buildings = [(building, index)]
-        put(house_tree, house, buildings)
-
-        put(tree_map, street, house_tree)
+    put(tree_map, [street, house, building], index)
 
 
 def get_index(
     tree_map: TreeMap[K, V], street: str, house: int, building: int
 ) -> Optional[int]:
     try:
-        houses = get_node_in_tree(tree_map.root, street).value
-        buildings = get(houses, house)
+        return get(tree_map, [street, house, building])
 
     except:
         return None
-
-    for block in buildings:
-        if block[0] == building:
-            return block[1]
 
 
 def rename(tree_map: TreeMap[K, V], street: str, new_name: str) -> None:
-    try:
-        houses = get(tree_map, street)
-        remove(tree_map, street)
-        put(tree_map, new_name, houses)
-
-    except:
-        return None
+    for old_name in get_all(
+        tree_map, [street, 0, 0], [street, float("inf"), float("inf")]
+    ):
+        house, building = old_name[1:]
+        index = remove(tree_map, old_name)
+        put(tree_map, [new_name, house, building], index)
 
 
 def delete_block(
     tree_map: TreeMap[K, V], street: str, house: int, building: int
 ) -> None:
     try:
-        houses = get_node_in_tree(tree_map.root, street).value
-        buildings = get_node_in_tree(houses.root, house).value
+        remove(tree_map, [street, house, building])
     except:
         return None
-
-    for i in range(len(buildings)):
-        if buildings[i][0] == building:
-            del buildings[i]
-            break
-
-    if not buildings:
-        remove(houses, int(house))
-    if houses.root is None:
-        remove(tree_map, street)
 
 
 def delete_house(tree_map: TreeMap[K, V], street: str, house: int) -> None:
     try:
-        houses = get_node_in_tree(tree_map.root, street).value
-        remove(houses, int(house))
+        for address in get_all(
+            tree_map, [street, house, 0], [street, house, float("inf")]
+        ):
+            remove(tree_map, address)
 
     except:
         return None
 
-    if houses.root is None:
-        remove(tree_map, street)
-
 
 def delete_street(tree_map: TreeMap[K, V], street: str) -> None:
     try:
-        remove(tree_map, street)
+        # remove(tree_map, street)
+        for address in get_all(
+            tree_map, [street, 0, 0], [street, float("inf"), float("inf")]
+        ):
+            remove(tree_map, address)
     except:
         return None
 
@@ -111,48 +83,12 @@ def print_list(
     house_2: int,
     building_2: int,
 ):
-    streets = []
-
-    def recursion(tree_node: TreeNode):
-        left_child = tree_node.left_child
-        right_child = tree_node.right_child
-
-        if street_1 <= tree_node.key <= street_2:
-            street_0 = tree_node.key
-            houses = get_items_in_node(tree_node.value.root, postorder_comparator)
-
-            for house in houses:
-                for corpus in house[1]:
-                    address = [street_0, house[0], corpus[0]]
-                    sort_list = [
-                        [street_1, house_1, building_1],
-                        address,
-                        [street_2, house_2, building_2],
-                    ]
-                    sort_list.sort()
-                    if (
-                        sort_list.index(address) == 0
-                        and address == sort_list[1]
-                        and address != sort_list[2]
-                    ) or (sort_list.index(address) == 1 and address != sort_list[-1]):
-                        streets.append(address)
-
-            if left_child is not None:
-                recursion(left_child)
-
-            if right_child is not None:
-                recursion(right_child)
-        elif tree_node.key > street_2 and left_child is not None:
-            recursion(left_child)
-        elif tree_node.key < street_1 and right_child is not None:
-            recursion(right_child)
-
-    recursion(tree_map.root)
+    streets = get_all(
+        tree_map, [street_1, house_1, building_1], [street_2, house_2, building_2]
+    )
     streets.sort()
-
-    result = [" ".join(map(str, address)) + "\n" for address in streets]
-
-    return result + ["\n"]
+    address_arr = [f"{address[0]} {address[1]} {address[2]}\n" for address in streets]
+    return address_arr + ["\n"]
 
 
 def commands(tree_map: TreeMap[K, V], instruction: list) -> Optional[list[str]]:
